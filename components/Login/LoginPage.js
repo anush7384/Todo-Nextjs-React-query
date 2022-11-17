@@ -6,20 +6,13 @@ import { todoApi } from "../../utils/api";
 import { setCookie } from "../../utils/helper";
 
 function LoginPage() {
+
   const [userEmail, setUserEmail] = useState("");
   const [userPass, setUserPass] = useState("");
-
+  
+  const router = useRouter();
+  
   const url = todoApi.concat("users/login");
-
-  const loginHandler = () => {
-    const obj = {
-      email: userEmail,
-      password: userPass,
-    };
-    if (userEmail !== "" && userPass !== "") mutate(obj);
-    setUserEmail("");
-    setUserPass("");
-  };
 
   const loginUser = async (data) => {
     const response = await fetch(url, {
@@ -33,7 +26,6 @@ function LoginPage() {
     return response.json();
   };
 
-  const router = useRouter();
 
   const { mutate, isLoading } = useMutation(loginUser, {
     onSuccess: (data) => {
@@ -49,6 +41,16 @@ function LoginPage() {
       console.log("reached post axios");
     },
   });
+
+  const loginHandler = () => {
+    const obj = {
+      email: userEmail,
+      password: userPass,
+    };
+    if (userEmail !== "" && userPass !== "") mutate(obj);
+    setUserEmail("");
+    setUserPass("");
+  };
 
   return (
     <div className="flex justify-center">
@@ -76,7 +78,6 @@ function LoginPage() {
             {isLoading != true ? "Login" : "Logging in"}
           </button>
         </div>
-        <link to="/signup" />
       </div>
     </div>
   );

@@ -1,20 +1,24 @@
 import { useQueryClient, useMutation } from "react-query";
+import { useState } from "react";
 import { BsCircle, BsCheckCircle } from "react-icons/bs";
 import { AiOutlineDelete } from "react-icons/ai";
-import { useRef } from "react";
-
-import { useState } from "react";
 
 import { todoApi } from "../../utils/api";
 
 export default function TodoItem(props) {
-  const url = todoApi.concat("tasks/");
+  
+  const queryClient = useQueryClient();
+  
+  const [edit, setEdit] = useState(false);
+  const [updatedTodo, setUpdatedTodo] = useState(props.name);
+  const [updating, setUpdating] = useState(false);
 
   const deleteTaskHandler = () => {
     deleteMutation.mutate();
   };
-
+  
   const deleteTodo = async (data) => {
+    let url = todoApi.concat("task/");
     const auth = localStorage.getItem("token");
     const newurl = url.concat(props.id);
     const response = await fetch(newurl, {
@@ -28,7 +32,6 @@ export default function TodoItem(props) {
     return response.json();
   };
 
-  const queryClient = useQueryClient();
 
   const deleteMutation = useMutation(deleteTodo, {
     onSuccess: () => {
@@ -43,15 +46,7 @@ export default function TodoItem(props) {
     },
   });
 
-  const toggleHandler = () => {
-    let data = {
-      description: props.name,
-      completed: props.isComplete ? false : true,
-      id: props.id,
-    };
-    props.onToggle(data);
-  };
-
+  
   const updateTodo = async (data) => {
     const auth = localStorage.getItem("token");
     let url = todoApi.concat("tasks/");
@@ -66,10 +61,9 @@ export default function TodoItem(props) {
       body: JSON.stringify(data),
     });
   };
-
+  
   const updateMutation = useMutation(updateTodo, {
     onSuccess: () => {
-      console.log("update completion");
       queryClient.invalidateQueries("todos");
       setTimeout(() => setUpdating(false), 1000);
     },
@@ -78,14 +72,10 @@ export default function TodoItem(props) {
     },
     onMutate: () => {
       setUpdating(true);
-      console.log("Updating todo....");
     },
   });
-
-  const [edit, setEdit] = useState(false);
-  const [updatedTodo, setUpdatedTodo] = useState(props.name);
-  const [updating, setUpdating] = useState(false);
-
+  
+  
   const updateTodoHandler = (e) => {
     if (e.key !== "Enter") return;
     let obj = {
@@ -95,12 +85,18 @@ export default function TodoItem(props) {
     updateMutation.mutate(obj);
     setEdit(false);
   };
-
-  const ref = useRef(null);
-
+  
+  const toggleHandler = () => {
+    let data = {
+      description: props.name,
+      completed: props.isComplete ? false : true,
+      id: props.id,
+    };
+    props.onToggle(data);
+  };
+  
   const editHandler = () => {
     setEdit(true);
-    // ref.current.focus();
   };
 
   return (

@@ -2,25 +2,12 @@ import { useQuery, useQueryClient, useMutation } from "react-query";
 import { useState } from "react";
 
 import { todoApi } from "../../utils/api";
-
 import TodoItem from "./TodoItem";
 
 export default function Todo() {
   const queryClient = useQueryClient();
-
-  const getTodos = async () => {
-    const url = todoApi.concat("tasks");
-    const auth = localStorage.getItem("token");
-    if (auth !== "") {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${auth}`,
-        },
-      });
-      return response.json();
-    }
-  };
+  
+  const [newTodo, setNewTodo] = useState("");
 
   const addTodo = async () => {
     const auth = localStorage.getItem("token");
@@ -63,33 +50,40 @@ export default function Todo() {
 
   const toggleMutation = useMutation(toggleCompletion, {
     onSuccess: () => {
-      console.log("Toggle completion");
       queryClient.invalidateQueries("todos");
     },
     onError: () => {
       console.log("error");
-    },
-    onMutate: () => {
-      console.log("Updating todo....");
     },
   });
 
-  const addMutation = useMutation(addTodo, {
-    onSuccess: () => {
-      console.log("ADD SUCCESS\n");
-      queryClient.invalidateQueries("todos");
-    },
-    onError: () => {
-      console.log("error");
-    },
-    onMutate: () => {
-      console.log("adding todo");
-    },
-  });
+  const getTodos = async () => {
+    const url = todoApi.concat("tasks");
+    const auth = localStorage.getItem("token");
+    if (auth !== "") {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${auth}`,
+        },
+      });
+      return response.json();
+    }
+  };
 
   const { isLoading, error, data } = useQuery("todos", getTodos);
 
-  const [newTodo, setNewTodo] = useState("");
+  const addMutation = useMutation(addTodo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("todos");
+    },
+    onError: () => {
+      console.log("error");
+    },
+    onMutate: () => {
+    },
+  });
+
 
   const addTodoHandler = (e) => {
     if (e.key === "Enter") {
@@ -129,16 +123,15 @@ export default function Todo() {
           ) : (
             data.map((todo) => {
               return (
-                <>
+                <div key={todo._id}>
                   <TodoItem
-                    key={todo._id}
                     id={todo._id}
                     name={todo.description}
                     isComplete={todo.completed}
                     onToggle={toggleTodo}
                   />
                   <hr />
-                </>
+                </div>
               );
             })
           )}
