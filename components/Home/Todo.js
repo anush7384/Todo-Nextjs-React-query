@@ -3,10 +3,13 @@ import { useState } from "react";
 
 import { todoApi } from "../../utils/api";
 import TodoItem from "./TodoItem";
+import { useRouter } from "next/router";
 
 export default function Todo() {
+  const router = useRouter();
+
   const queryClient = useQueryClient();
-  
+
   const [newTodo, setNewTodo] = useState("");
 
   const addTodo = async () => {
@@ -80,10 +83,8 @@ export default function Todo() {
     onError: () => {
       console.log("error");
     },
-    onMutate: () => {
-    },
+    onMutate: () => {},
   });
-
 
   const addTodoHandler = (e) => {
     if (e.key === "Enter") {
@@ -96,6 +97,12 @@ export default function Todo() {
 
   const toggleTodo = (data) => {
     toggleMutation.mutate(data);
+  };
+
+  const logoutHandler = () => {
+    localStorage.clear();
+    document.cookie = "token" + "=; Path=/; expires=Sat, 19 Nov 2022 00:00:01 GMT;";
+    router.push("/");
   };
 
   if (error) return "error occurred: " + error.message;
@@ -114,8 +121,8 @@ export default function Todo() {
           onKeyPress={addTodoHandler}
         />
       </div>
-      <div className="flex justify-center">
-        <div className="w-1/3 bg-white mt-1 rounded-xl">
+      <div className="flex items-center flex-col">
+        <div className="w-1/3  mt-1 rounded-xl">
           {isLoading === true ? (
             <div className="flex justify-center">Loading Todos.....</div>
           ) : data.length === 0 ? (
@@ -123,7 +130,7 @@ export default function Todo() {
           ) : (
             data.map((todo) => {
               return (
-                <div key={todo._id}>
+                <div key={todo._id} className="bg-white">
                   <TodoItem
                     id={todo._id}
                     name={todo.description}
@@ -135,6 +142,11 @@ export default function Todo() {
               );
             })
           )}
+        </div>
+        <div>
+          <button className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white" onClick={logoutHandler}>
+            Logout
+          </button>
         </div>
       </div>
     </div>
