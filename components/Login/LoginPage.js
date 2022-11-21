@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 import { todoApi } from "../../utils/api";
 import { setCookie } from "../../utils/helper";
@@ -72,11 +73,17 @@ function LoginPage() {
         ></input>
         <div className="flex justify-center">
           <button
-            className="w-40 rounded-xl h-8 mt-5 bg-blue-500"
+            className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white"
             onClick={loginHandler}
           >
             {isLoading != true ? "Login" : "Logging in"}
           </button>
+        </div>
+        <div className="mt-2 flex justify-center text-gray-700">
+          New User?
+          <Link href="/signup" className="text-blue-600 outline-none">
+            Register
+          </Link>
         </div>
       </div>
     </div>
