@@ -76,7 +76,7 @@ function SignupPage() {
         ></input>
         <div className="flex justify-center">
           <button
-            className="w-40 rounded-xl h-8 mt-5 bg-blue-500"
+            className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white"
             onClick={signupHandler}
           >
             {isLoading != true ? "Signup" : "Signing Up"}
@@ -84,7 +84,9 @@ function SignupPage() {
         </div>
         <div className="mt-2 flex justify-center text-gray-700">
           Already have an account?
-          <Link href="/" className="text-blue-600 outline-none">login</Link>
+          <Link href="/" className="text-blue-600 outline-none">
+            login
+          </Link>
         </div>
       </div>
     </div>
