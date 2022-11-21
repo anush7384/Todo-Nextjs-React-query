@@ -18,7 +18,7 @@ export default function TodoItem(props) {
   };
   
   const deleteTodo = async (data) => {
-    let url = todoApi.concat("task/");
+    let url = todoApi.concat("tasks/");
     const auth = localStorage.getItem("token");
     const newurl = url.concat(props.id);
     const response = await fetch(newurl, {
@@ -65,7 +65,7 @@ export default function TodoItem(props) {
   const updateMutation = useMutation(updateTodo, {
     onSuccess: () => {
       queryClient.invalidateQueries("todos");
-      setTimeout(() => setUpdating(false), 1000);
+      // setTimeout(() => setUpdating(false), 1000);
     },
     onError: () => {
       console.log("error");
@@ -115,7 +115,6 @@ export default function TodoItem(props) {
         >
           {edit ? (
             <input
-              ref={ref}
               className="w-5/6 h-10  focus:outline-none"
               placeholder={updatedTodo}
               value={updatedTodo}
