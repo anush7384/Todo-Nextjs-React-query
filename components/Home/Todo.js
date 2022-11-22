@@ -1,111 +1,39 @@
-import { useQuery, useQueryClient, useMutation } from "react-query";
 import { useState } from "react";
-
-import { todoApi } from "../../utils/api";
-import TodoItem from "./TodoItem";
 import { useRouter } from "next/router";
 
-export default function Todo() {
+import TodoItem from "./TodoItem";
+import {
+  useToggleTask,
+  useAddTask,
+  useGetTasks,
+} from "../../src/hooks/todoHooks";
+
+const Todo = () => {
   const router = useRouter();
-
-  const queryClient = useQueryClient();
-
   const [newTodo, setNewTodo] = useState("");
 
-  const addTodo = async () => {
-    const auth = localStorage.getItem("token");
-    const url = todoApi.concat("tasks");
-    const data = {
-      description: newTodo,
-      completed: false,
-    };
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth}`,
-      },
-      body: JSON.stringify(data),
-    });
-    return response.json();
-  };
-
-  const toggleCompletion = async (data) => {
-    let obj = {
-      description: data.description,
-      completed: data.completed,
-    };
-    let todoId = data.id;
-    const auth = localStorage.getItem("token");
-    let url = todoApi.concat("tasks/");
-    url = url.concat(todoId);
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth}`,
-      },
-      body: JSON.stringify(obj),
-    });
-  };
-
-  const toggleMutation = useMutation(toggleCompletion, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("todos");
-    },
-    onError: () => {
-      console.log("error");
-    },
-  });
-
-  const getTodos = async () => {
-    const url = todoApi.concat("tasks");
-    const auth = localStorage.getItem("token");
-    if (auth !== "") {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${auth}`,
-        },
-      });
-      return response.json();
-    }
-  };
-
-  const { isLoading, error, data } = useQuery("todos", getTodos);
-
-  const addMutation = useMutation(addTodo, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("todos");
-    },
-    onError: () => {
-      console.log("error");
-    },
-    onMutate: () => {},
-  });
+  const { isLoading, data } = useGetTasks();
+  const toggleMutation = useToggleTask();
+  const addMutation = useAddTask();
 
   const addTodoHandler = (e) => {
     if (e.key === "Enter") {
-      addMutation.mutate();
+      let data = {
+        description: newTodo,
+        completed: false,
+      };
+      addMutation.mutate(data);
       setNewTodo("");
       e.preventDefault();
       e.target.blur();
     }
   };
 
-  const toggleTodo = (data) => {
-    toggleMutation.mutate(data);
-  };
-
   const logoutHandler = () => {
-    localStorage.clear();
-    document.cookie = "token" + "=; Path=/; expires=Sat, 19 Nov 2022 00:00:01 GMT;";
+    document.cookie =
+      "token" + "=; Path=/; expires=Sat, 19 Nov 2022 00:00:01 GMT;";
     router.push("/");
   };
-
-  if (error) return "error occurred: " + error.message;
 
   return (
     <div className="flex flex-col justify-center">
@@ -135,7 +63,7 @@ export default function Todo() {
                     id={todo._id}
                     name={todo.description}
                     isComplete={todo.completed}
-                    onToggle={toggleTodo}
+                    onToggle={(data) => toggleMutation.mutate(data)}
                   />
                   <hr />
                 </div>
@@ -144,11 +72,16 @@ export default function Todo() {
           )}
         </div>
         <div>
-          <button className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white" onClick={logoutHandler}>
+          <button
+            className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white"
+            onClick={logoutHandler}
+          >
             Logout
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Todo;

@@ -1,91 +1,28 @@
-import { useQueryClient, useMutation } from "react-query";
 import { useState } from "react";
-import { BsCircle, BsCheckCircle } from "react-icons/bs";
 import { AiOutlineDelete } from "react-icons/ai";
+import { BsCircle, BsCheckCircle } from "react-icons/bs";
 
-import { todoApi } from "../../utils/api";
+import { useUpdateTask, useDeleteTask } from "../../src/hooks/todoHooks";
 
-export default function TodoItem(props) {
-  
-  const queryClient = useQueryClient();
-  
+const TodoItem = (props) => {
   const [edit, setEdit] = useState(false);
   const [updatedTodo, setUpdatedTodo] = useState(props.name);
-  const [updating, setUpdating] = useState(false);
 
-  const deleteTaskHandler = () => {
-    deleteMutation.mutate();
-  };
-  
-  const deleteTodo = async (data) => {
-    let url = todoApi.concat("tasks/");
-    const auth = localStorage.getItem("token");
-    const newurl = url.concat(props.id);
-    const response = await fetch(newurl, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth}`,
-      },
-    });
-    return response.json();
-  };
+  const deleteMutation = useDeleteTask();
+  const updateMutation = useUpdateTask();
 
-
-  const deleteMutation = useMutation(deleteTodo, {
-    onSuccess: () => {
-      console.log("DELETE SUCCESS\n");
-      queryClient.invalidateQueries("todos");
-    },
-    onError: () => {
-      console.log("error");
-    },
-    onMutate: () => {
-      console.log("deleting todo");
-    },
-  });
-
-  
-  const updateTodo = async (data) => {
-    const auth = localStorage.getItem("token");
-    let url = todoApi.concat("tasks/");
-    url = url.concat(props.id);
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth}`,
-      },
-      body: JSON.stringify(data),
-    });
-  };
-  
-  const updateMutation = useMutation(updateTodo, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("todos");
-      // setTimeout(() => setUpdating(false), 1000);
-    },
-    onError: () => {
-      console.log("error");
-    },
-    onMutate: () => {
-      setUpdating(true);
-    },
-  });
-  
-  
   const updateTodoHandler = (e) => {
-    if (e.key !== "Enter") return;
     let obj = {
       description: updatedTodo,
       completed: props.isComplete,
+      id: props.id,
     };
-    updateMutation.mutate(obj);
-    setEdit(false);
+    if (e.key === "Enter") {
+      updateMutation.mutate(obj);
+      setEdit(false);
+    }
   };
-  
+
   const toggleHandler = () => {
     let data = {
       description: props.name,
@@ -93,10 +30,6 @@ export default function TodoItem(props) {
       id: props.id,
     };
     props.onToggle(data);
-  };
-  
-  const editHandler = () => {
-    setEdit(true);
   };
 
   return (
@@ -111,7 +44,7 @@ export default function TodoItem(props) {
         </div>
         <div
           className="w-5/6 flex text-l items-center"
-          onDoubleClick={editHandler}
+          onDoubleClick={() => setEdit(true)}
         >
           {edit ? (
             <input
@@ -122,8 +55,6 @@ export default function TodoItem(props) {
               onKeyPress={updateTodoHandler}
               autoFocus
             />
-          ) : updating ? (
-            "updating..."
           ) : (
             <div className={props.isComplete ? "line-through" : ""}>
               {props.name}
@@ -131,9 +62,11 @@ export default function TodoItem(props) {
           )}
         </div>
         <div className="flex items-center">
-          <AiOutlineDelete onClick={deleteTaskHandler} />
+          <AiOutlineDelete onClick={() => deleteMutation.mutate(props.id)} />
         </div>
       </div>
     </>
   );
-}
+};
+
+export default TodoItem;

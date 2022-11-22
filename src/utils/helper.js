@@ -1,3 +1,7 @@
+import * as R from "ramda";
+
+export const isNilOrEmpty = R.anyPass([R.isNil, R.isEmpty]);
+
 export function setCookie(token) {
   document.cookie = "token=" + token;
 }
@@ -9,9 +13,8 @@ export function getCookie(cookie) {
   let ca = cookie.split(";");
   for (let i = 0; i < ca.length; i++) {
     let c = ca[i];
-    let s = c.substring(1,name.length+1);
-    if(name===s)
-    return c.substring(name.length + 1);
+    let s = c.substring(1, name.length + 1);
+    if (name === s) return c.substring(name.length + 1);
   }
   return "";
 }
