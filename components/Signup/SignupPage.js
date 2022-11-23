@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import Link from "next/link";
 
 import { useSignupUser } from "../../src/hooks/userHooks";
@@ -10,13 +10,13 @@ const SignupPage = () => {
     password: "",
   });
 
-  const { mutate, isLoading } = useSignupUser();
+  const { signup, signingUp } = useSignupUser();
 
-  const signupHandler = () => {
+  const signupHandler = useCallback(() => {
     const obj = user;
-    mutate(obj);
+    signup(obj);
     setUser({ name: "", email: "", password: "" });
-  };
+  }, [user]);
 
   return (
     <div className="flex justify-center">
@@ -47,7 +47,7 @@ const SignupPage = () => {
             className="w-40 rounded-xl h-8 mt-5 bg-blue-500 text-white"
             onClick={signupHandler}
           >
-            {isLoading != true ? "Signup" : "Signing Up"}
+            {signingUp != true ? "Signup" : "Signing Up"}
           </button>
         </div>
         <div className="mt-2 flex justify-center text-gray-700">

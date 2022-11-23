@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import requestMethod from "../services/requestMethods";
+import methods from "../utils/constants";
 
 const addTodo = async (data) => {
-  return requestMethod("tasks", "POST", data);
+  return requestMethod("tasks", methods.POST, data);
 };
 
 const toggleCompletion = async (data) => {
@@ -13,16 +14,16 @@ const toggleCompletion = async (data) => {
   };
   let url = "tasks/";
   url = url.concat(data.id);
-  return requestMethod(url, "PATCH", obj);
+  return requestMethod(url, methods.PATCH, obj);
 };
 
 const getTodos = async () => {
-  return requestMethod("tasks", "GET", {});
+  return requestMethod("tasks", methods.GET, {});
 };
 
 const deleteTodo = async (id) => {
   let url = "tasks/".concat(id);
-  return requestMethod(url, "DELETE", {});
+  return requestMethod(url, methods.DELETE, {});
 };
 
 const updateTodo = async (data) => {
@@ -31,7 +32,7 @@ const updateTodo = async (data) => {
     description: data.description,
     completed: data.completed,
   };
-  return requestMethod(url, "PATCH", obj);
+  return requestMethod(url, methods.PATCH, obj);
 };
 
 export const useUpdateTask = () => {

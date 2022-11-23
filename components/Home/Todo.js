@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 
 import TodoItem from "./TodoItem";
@@ -7,31 +7,34 @@ import {
   useAddTask,
   useGetTasks,
 } from "../../src/hooks/todoHooks";
+import { clearCookie } from "../../src/utils/tokenhelpers";
 
 const Todo = () => {
   const router = useRouter();
   const [newTodo, setNewTodo] = useState("");
 
-  const { isLoading, data } = useGetTasks();
+  const { isLoading: loadingTasks, data: tasks } = useGetTasks();
   const toggleMutation = useToggleTask();
   const addMutation = useAddTask();
 
-  const addTodoHandler = (e) => {
-    if (e.key === "Enter") {
-      let data = {
-        description: newTodo,
-        completed: false,
-      };
-      addMutation.mutate(data);
-      setNewTodo("");
-      e.preventDefault();
-      e.target.blur();
-    }
-  };
+  const addTodoHandler = useCallback(
+    (e) => {
+      if (e.key === "Enter") {
+        let data = {
+          description: newTodo,
+          completed: false,
+        };
+        addMutation.mutate(data);
+        setNewTodo("");
+        e.preventDefault();
+        e.target.blur();
+      }
+    },
+    [newTodo]
+  );
 
   const logoutHandler = () => {
-    document.cookie =
-      "token" + "=; Path=/; expires=Sat, 19 Nov 2022 00:00:01 GMT;";
+    clearCookie();
     router.push("/");
   };
 
@@ -51,12 +54,12 @@ const Todo = () => {
       </div>
       <div className="flex items-center flex-col">
         <div className="w-1/3  mt-1 rounded-xl">
-          {isLoading === true ? (
+          {loadingTasks === true ? (
             <div className="flex justify-center">Loading Todos.....</div>
-          ) : data.length === 0 ? (
+          ) : tasks.length === 0 ? (
             <div className="flex justify-center">No todos Found!!</div>
           ) : (
-            data.map((todo) => {
+            tasks.map((todo) => {
               return (
                 <div key={todo._id} className="bg-white">
                   <TodoItem

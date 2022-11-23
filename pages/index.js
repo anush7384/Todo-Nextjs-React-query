@@ -1,6 +1,7 @@
 import LoginPage from "../components/Login/LoginPage";
 
-import { getCookie, isNilOrEmpty } from "../src/utils/helper";
+import { isNilOrEmpty } from "../src/utils/helper";
+import { getCookie } from "../src/utils/tokenhelpers";
 
 const Login = () => {
   return <LoginPage />;

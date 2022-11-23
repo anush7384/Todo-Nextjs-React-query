@@ -1,5 +1,6 @@
 import SignupPage from "../components/Signup/SignupPage";
-import { getCookie, isNilOrEmpty } from "../src/utils/helper";
+import { isPresent } from "../src/utils/helper";
+import { getCookie } from "../src/utils/tokenhelpers";
 
 const SignUp = () => {
   return <SignupPage />;
@@ -11,15 +12,15 @@ export const getServerSideProps = async (context) => {
   const cookies = req.headers.cookie;
   const accessToken = getCookie(cookies);
 
-  if (isNilOrEmpty(accessToken)) {
-    return {
-      props: {},
-    };
-  } else
-    return {
+  if(isPresent(accessToken)) {
+    return{
       redirect: {
         destination: "/home",
         permanent: true,
       },
     };
+  }
+  return {
+    props:{}
+  };
 };

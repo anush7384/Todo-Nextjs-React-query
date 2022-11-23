@@ -2,16 +2,17 @@ import { useRouter } from "next/router";
 import { useMutation } from "react-query";
 
 import requestMethod from "../services/requestMethods";
-import { setCookie } from "../utils/helper";
+import { setCookie } from "../utils/tokenhelpers";
+import methods from "../utils/constants";
 
 const loginUser = async (data) => {
   const url = "users/login";
-  return await requestMethod(url, "POST", data);
+  return await requestMethod(url, methods.POST, data);
 };
 
 const registerUser = async (data) => {
   const url = "users";
-  return await requestMethod(url, "POST", data);
+  return await requestMethod(url, methods.POST, data);
 };
 
 export const useLoginUser = () => {
@@ -22,7 +23,7 @@ export const useLoginUser = () => {
       router.push("/home");
     },
   });
-  return { mutate, isLoading };
+  return { login: mutate, loggingIn: isLoading };
 };
 
 export const useSignupUser = () => {
@@ -33,5 +34,5 @@ export const useSignupUser = () => {
       router.push("/home");
     },
   });
-  return { mutate, isLoading };
+  return { signup: mutate, signingUp: isLoading };
 };

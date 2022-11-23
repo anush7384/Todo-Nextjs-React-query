@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsCircle, BsCheckCircle } from "react-icons/bs";
 
@@ -11,26 +11,29 @@ const TodoItem = (props) => {
   const deleteMutation = useDeleteTask();
   const updateMutation = useUpdateTask();
 
-  const updateTodoHandler = (e) => {
-    let obj = {
-      description: updatedTodo,
-      completed: props.isComplete,
-      id: props.id,
-    };
-    if (e.key === "Enter") {
-      updateMutation.mutate(obj);
-      setEdit(false);
-    }
-  };
+  const updateTodoHandler = useCallback(
+    (e) => {
+      let obj = {
+        description: updatedTodo,
+        completed: props.isComplete,
+        id: props.id,
+      };
+      if (e.key === "Enter") {
+        updateMutation.mutate(obj);
+        setEdit(false);
+      }
+    },
+    [updatedTodo]
+  );
 
-  const toggleHandler = () => {
+  const toggleHandler = useCallback(() => {
     let data = {
       description: props.name,
       completed: props.isComplete ? false : true,
       id: props.id,
     };
     props.onToggle(data);
-  };
+  }, [props]);
 
   return (
     <>
